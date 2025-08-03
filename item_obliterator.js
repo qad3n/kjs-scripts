@@ -27,11 +27,11 @@ const cancelIfRemoved = mob =>
 {
 	if (global.REMOVED_MOBS.includes(mob.entity.type))
 		mob.cancel()
-		
+
 	// Example: For removing items from entity hands or armor slots
 	// (Removes crossbows from piglins)
-	if (mob.entity.type.toString() == "minecraft:piglin") 
-		mob.entity.setItemSlot(0, "minecraft:air")
+	//if (mob.entity.type.toString() == "minecraft:piglin") 
+		//mob.entity.setItemSlot(0, "minecraft:air")
 }
 
 // Main
@@ -68,7 +68,7 @@ function objectRemover()
 	ServerEvents.recipes(recipe =>
 	{
 		item.forEach(rule => recipe.remove({ output: rule }))
-		
+
 		global.CATEGORIES.forEach(category =>
 		{
 			recipe.remove({ output: category })
@@ -89,8 +89,9 @@ function objectRemover()
 		// Secondary fallback for mods that force late data generation
 		loot.addLootTableModifier(/.*/).removeLoot(item)
 
-		// Specific to b174, removes sticks from leaves loot tables
-		loot.addLootTableModifier(/minecraft:blocks\/.*_leaves/).removeLoot("minecraft:stick")
+		// Example: For removing items from specific loot tables
+		// (Removes sticks dropping from all types of leaves)
+		//loot.addLootTableModifier(/minecraft:blocks\/.*_leaves/).removeLoot("minecraft:stick")
 
 		// Removes varios kinds of NBT data (Enchantments, Potions)
 		loot
