@@ -5,31 +5,42 @@
 // 
 // KUBEJS CUSTOM TOOLTIP SCRIPT (WRITTEN FOR MINECRAFT 1.20.1)
 
-// Keeping this array here instead of a global for now, may move. Not sure.
-const ITEMS = 
+const ITEMS =
 [
 	// Examples: (uncomment and reload to view)
+	
 	// { ID: "minecraft:stone",  description: "line one" },
 	// { ID: "minecraft:dirt",  description: ["line one", "line two", "line three"] },	
 ]
 
+// Seems to fix issues with optimization mods duplicating tooltips
+// (ModernFix)
+const dedupe = (text, s) =>
+{
+	for (let i = 1; i < text.size(); i++)
+		if ((text.get(i)?.string ?? "") === s)
+			return
+			
+	text.add(Text.gray(s))
+}
+
 ItemEvents.tooltip(event =>
 {
-	event.addAdvanced(Ingredient.all, (item, advanced, text) => 
+	event.addAdvanced(Ingredient.all, (item, advanced, text) =>
 	{
 		// Wipes all existing formatting
 		const raw = text.get(0).string
 		text.set(0, Text.of(raw).white().italic(false))
 		
 		// Wipes all existing tooltips
-		for (let i = text.size() - 1; i >= 1; i--) 
+		for (let i = text.size() - 1; i >= 1; i--)
 			text.remove(i)
 		
 		// Rebuilds debug tooltips info + NBT data
 		{
 			if (!advanced)
 				return
-		
+				
 			text.add(Text.gray(item.id))
 			
 			if (!item.nbt)
@@ -40,17 +51,17 @@ ItemEvents.tooltip(event =>
 	})
 	
 	// Build custom tooltips
-	ITEMS.forEach(obj => 
+	ITEMS.forEach(obj =>
 	{
-		event.addAdvanced(obj.ID, (item, advanced, text) => 
+		event.addAdvanced(obj.ID, (item, advanced, text) =>
 		{
-			if (!event.shift) 
+			if (!event.shift)
 				return
-			
+				
 			const lines = Array.isArray(obj.description) ? obj.description : String(obj.description).split("\n")
 			
 			for (let i = 0; i < lines.length; i++)
-				text.add(Text.gray(lines[i]))
+				dedupe(text, lines[i])
 		})
 	})
 })
