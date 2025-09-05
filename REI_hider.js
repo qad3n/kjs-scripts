@@ -1,5 +1,14 @@
-// Simple REI hider script.
-// Used in conjunction with obliterator.js script.
+/*---------------------------------------------------------
+
+@ qad3n | https://github.com/qad3n
+
+https://github.com/qad3n/KJSScripts
+
+(WRITTEN FOR MINECRAFT 1.20.1)
+
+---------------------------------------------------------*/
+
+// Simple REI hider script to be used in conjunction with obliterator.js script.
 
 REIEvents.hide("item", event =>
 {

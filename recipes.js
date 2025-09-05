@@ -1,5 +1,4 @@
-/*
----------------------------------------------------------
+/*---------------------------------------------------------
 
 @ qad3n | https://github.com/qad3n
 
@@ -7,11 +6,11 @@ https://github.com/qad3n/KJSScripts
 
 PLEASE CREDIT ME IF YOU USE THIS SCRIPT IN YOUR MODPACK
 
----------------------------------------------------------
-*/
+(WRITTEN FOR MINECRAFT 1.20.1)
 
-/*
-========= INFO ===============================================================
+---------------------------------------------------------*/
+
+/*========= INFO ===============================================================
 
 Recipes can be defined as replaced, this is true by default.
 This will remove all existing recipes for that output item.
@@ -37,8 +36,7 @@ Outputs can specify custom NBT either with a top-level "nbt" property or using a
 NBT is merged with the items default NBT (default keys are preserved, custom keys override).
 If no NBT is specified, recipes behave normally.
 
-========= INFO ===============================================================
-*/
+========= INFO ===============================================================*/
 
 /* EXAMPLES:
  * 

@@ -1,9 +1,16 @@
-// ---------------------------------------------------------
-// @ qad3n
-// PLEASE CREDIT ME IF YOU USE THIS SCRIPT IN YOUR MODPACK
-// ---------------------------------------------------------
-// 
-// KUBEJS CUSTOM TOOLTIP SCRIPT (WRITTEN FOR MINECRAFT 1.20.1)
+/*---------------------------------------------------------
+
+@ qad3n | https://github.com/qad3n
+
+https://github.com/qad3n/KJSScripts
+
+PLEASE CREDIT ME IF YOU USE THIS SCRIPT IN YOUR MODPACK
+
+(WRITTEN FOR MINECRAFT 1.20.1)
+
+---------------------------------------------------------*/
+
+// Custom item tooltip script (WRITTEN FOR MINECRAFT 1.20.1)
 
 const ITEMS =
 [

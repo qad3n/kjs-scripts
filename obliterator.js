@@ -1,4 +1,16 @@
-/* ---------------------------------------------------------
+/*---------------------------------------------------------
+
+@ qad3n | https://github.com/qad3n
+
+https://github.com/qad3n/KJSScripts
+
+PLEASE CREDIT ME IF YOU USE THIS SCRIPT IN YOUR MODPACK
+
+(WRITTEN FOR MINECRAFT 1.20.1)
+
+---------------------------------------------------------*/
+
+/*---------------------------------------------------------
 
 Mass game data remover script, essentially a lightweight
 script based alternative to the "Item Obliterator" mod.
@@ -18,10 +30,7 @@ blocks that generate in structures or worlds. Use BlockSwapper for that.
 
 THIS SCRIPT REQUIRES: LootJS, AchievementsJS
 
-PLEASE CREDIT ME IF YOU USE THIS SCRIPT IN YOUR MODPACK! THANK YOU!
-@qad3n
-
---------------------------------------------------------- */
+---------------------------------------------------------*/
 
 // I am sure these could be simplified, but they work
 const ENCHANTNBT = [/^[^:]+:.*(sword|pickaxe|shovel|axe|hoe|helmet|chestplate|leggings|boots|gloves|bow|lance|slayer|rod).*/]
