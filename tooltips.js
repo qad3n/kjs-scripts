@@ -8,6 +8,8 @@ PLEASE CREDIT ME IF YOU USE THIS SCRIPT IN YOUR MODPACK
 
 (WRITTEN FOR MINECRAFT 1.20.1)
 
+THIS IS A CLIENT SCRIPT
+
 ---------------------------------------------------------*/
 
 // Custom item tooltip script (WRITTEN FOR MINECRAFT 1.20.1)

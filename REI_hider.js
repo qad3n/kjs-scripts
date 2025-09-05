@@ -6,6 +6,8 @@ https://github.com/qad3n/KJSScripts
 
 (WRITTEN FOR MINECRAFT 1.20.1)
 
+THIS IS A CLIENT SCRIPT
+
 ---------------------------------------------------------*/
 
 // Simple REI hider script to be used in conjunction with obliterator.js script.

@@ -8,6 +8,8 @@ PLEASE CREDIT ME IF YOU USE THIS SCRIPT IN YOUR MODPACK
 
 (WRITTEN FOR MINECRAFT 1.20.1)
 
+THIS IS A SERVER SCRIPT
+
 ---------------------------------------------------------*/
 
 /*---------------------------------------------------------
