@@ -1,5 +1,5 @@
 // Simple REI hider script.
-// Used in conjunction with remover.js script.
+// Used in conjunction with obliterator.js script.
 
 REIEvents.hide("item", event =>
 {

@@ -109,112 +109,126 @@ event if the removal is after the recipe is defined in the array
 // ----------------------------------------------------------------------------------------------------
 
 // Deduplicator technology (secret advanced technology) ???
-const idCounts = {}
-const makeID = (out, type) => 
+const recipeIdCounts = {}
+const makeRecipeId = (outputId, type) => 
 {
-	const safe = out.replace(/[/:]/g, '_')
-	const n = idCounts[safe] = (idCounts[safe] ?? 0) + 1
-	return `kubejs:auto/${type ? type + '_' : ''}${safe}${n > 1 ? '_' + (n - 1) : ''}`
+	const safeId = outputId.replace(/[/:]/g, "_")
+	const index = recipeIdCounts[safeId] = (recipeIdCounts[safeId] ?? 0) + 1
+	return `kubejs:auto/${type ? type + '_' : ''}${safeId}${index > 1 ? '_' + (index - 1) : ''}`
 }
 
 // Cant do it like this cause Rhino limitations...? Default param limitations? Or am I dumb?
 // Example:
 		// const addShapeless = (event, out, n = 1, ing, id) => event.shapeless(Item.of(out, n), ing).id(id)
-const applyCountDefault = n => n === undefined ? 1 : n
+const ensureCount = count => count === undefined ? 1 : count
 
-const addShapeless = (event, out, n, ing, id) => 
+const getOutputId = o => typeof o === "object" ? (o.item || o.id || o.name) : o
+
+const createOutputStack = recipe =>
 {
-	n = applyCountDefault(n)
-	return event.shapeless(Item.of(out, n), ing).id(id)
+	let outputId = getOutputId(recipe.output)
+	let count = ensureCount(typeof recipe.output === "object" && recipe.output.count !== undefined ? recipe.output.count : recipe.count)
+	let nbt = (typeof recipe.output === "object" && recipe.output.nbt !== undefined) ? recipe.output.nbt : recipe.nbt
+	let stack = Item.of(outputId, count)
+	if (nbt !== undefined) stack = stack.withNBT(nbt)
+	return stack
 }
 
-const addShaped = (event, out, n, pat, key, id) => 
+const addShapelessRecipe = (event, outputId, count, ingredients, recipeId) => 
 {
-	n = applyCountDefault(n)
-	return event.shaped(Item.of(out, n), pat, key).id(id)
+	count = ensureCount(count)
+	return event.shapeless(Item.of(outputId, count), ingredients).id(recipeId)
 }
 
-const addStoneCutter = (event, out, n, input, id) => 
+const addShapedRecipe = (event, outputId, count, pattern, keyMap, recipeId) => 
 {
-	n = applyCountDefault(n)
-	return event.stonecutting(Item.of(out, n), input).id(id)
+	count = ensureCount(count)
+	return event.shaped(Item.of(outputId, count), pattern, keyMap).id(recipeId)
 }
 
-let DEFAULT_TEMPLATE = 'minecraft:netherite_upgrade_smithing_template'
-const addSmithing = (event, out, base, add, template, id) => 
+const addStonecuttingRecipe = (event, outputId, count, inputItem, recipeId) => 
 {
-	if (template === undefined) 
-		template = DEFAULT_TEMPLATE
-	return event.smithing(out, template, base, add).id(id)
+	count = ensureCount(count)
+	return event.stonecutting(Item.of(outputId, count), inputItem).id(recipeId)
 }
 
-const makeCooker = (method, defTime) => (event, out, input, xp, time, id) => 
+let defaultSmithingTemplate = "minecraft:netherite_upgrade_smithing_template"
+const addSmithingRecipe = (event, outputStack, baseItem, additionItem, templateId, recipeId) => 
 {
-	if (xp === undefined) 
+	if (templateId === undefined)
+		templateId = defaultSmithingTemplate
+	return event.smithing(outputStack, templateId, baseItem, additionItem).id(recipeId)
+}
+
+const makeCookHandler = (methodName, defaultTime) => (event, outputStack, inputItem, xp, time, recipeId) => 
+{
+	if (xp === undefined)
 		xp = 0
-	if (time === undefined) 
-		time = defTime
-	return event[method](out, input).xp(xp).cookingTime(time).id(id)
+	if (time === undefined)
+		time = defaultTime
+	return event[methodName](outputStack, inputItem).xp(xp).cookingTime(time).id(recipeId)
 }
 
-const addCook = 
+const cookHandlers = 
 {
-	smelting: makeCooker('smelting', 200),
-	blasting: makeCooker('blasting', 100),
-	smoking: makeCooker('smoking', 100),
-	campfire: makeCooker('campfireCooking', 600)
+	smelting: makeCookHandler("smelting", 200),
+	blasting: makeCookHandler("blasting", 100),
+	smoking: makeCookHandler("smoking", 100),
+	campfire: makeCookHandler("campfireCooking", 600)
 }
 
 ServerEvents.recipes(event => 
 {
-	const removedOutputs = new Set()
+	const removedOutputIds = new Set()
 	
-	RECIPES.forEach(r => 
+	RECIPES.forEach(recipe => 
 	{
-		if (r.type === 'remove') 
+		if (recipe.type === "remove") 
 		{
-			if (r.id) 
-				event.remove({ id: r.id })
-			else if (r.output) 
-				event.remove({ output: r.output })
+			if (recipe.id) 
+				event.remove({ id: recipe.id })
+			else if (recipe.output) 
+				event.remove({ output: getOutputId(recipe.output) })
 			return
 		}
 		
-		if (r.inputs && !r.ingredients)
-			r.ingredients = r.inputs
-		if (r.type === 'shaped' && r.ingredients && !r.keys)
-			r.keys = r.ingredients
+		if (recipe.inputs && !recipe.ingredients)
+			recipe.ingredients = recipe.inputs
+		if (recipe.type === "shaped" && recipe.ingredients && !recipe.keys)
+			recipe.keys = recipe.ingredients
 		
-		if (r.type === 'campfireCooking')
-			r.type = 'campfire'
-		else if (r.type === 'stonecut')
-			r.type = 'stonecutting'
+		if (recipe.type === "campfireCooking")
+			recipe.type = "campfire"
+		else if (recipe.type === "stonecut")
+			recipe.type = "stonecutting"
 		
-		const recipeId = r.id || makeID(r.output, r.type)
-		const out = r.output
-		const replace = r.replace !== undefined ? r.replace : true
+		const outputId = getOutputId(recipe.output)
+		const recipeId = recipe.id || makeRecipeId(outputId, recipe.type)
+		const replace = recipe.replace !== undefined ? recipe.replace : true
 		
-		if (replace && !removedOutputs.has(out)) 
+		if (replace && !removedOutputIds.has(outputId)) 
 		{
-			event.remove({ output: out })
-			removedOutputs.add(out)
+			event.remove({ output: outputId })
+			removedOutputIds.add(outputId)
 		}
 		
-		const dispatch = 
+		const outputStack = createOutputStack(recipe)
+		
+		const handlers = 
 		{
-			shapeless: () => addShapeless(event, out, r.count, r.ingredients, recipeId),
-			shaped: () => addShaped(event, out, r.count, r.pattern, r.keys, recipeId),
-			smithing: () => addSmithing(event, out, r.base, r.addition, r.template, recipeId),
-			smelting: () => addCook.smelting(event, out, r.input, r.xp, r.cookingTime, recipeId),
-			blasting: () => addCook.blasting(event, out, r.input, r.xp, r.cookingTime, recipeId),
-			smoking: () => addCook.smoking(event, out, r.input, r.xp, r.cookingTime, recipeId),
-			campfire: () => addCook.campfire(event, out, r.input, r.xp, r.cookingTime, recipeId),
-			stonecutting: () => addStoneCutter(event, out, r.count, r.input, recipeId)
+			shapeless: () => event.shapeless(outputStack, recipe.ingredients).id(recipeId),
+			shaped: () => event.shaped(outputStack, recipe.pattern, recipe.keys).id(recipeId),
+			smithing: () => addSmithingRecipe(event, outputStack, recipe.base, recipe.addition, recipe.template, recipeId),
+			smelting: () => cookHandlers.smelting(event, outputStack, recipe.input, recipe.xp, recipe.cookingTime, recipeId),
+			blasting: () => cookHandlers.blasting(event, outputStack, recipe.input, recipe.xp, recipe.cookingTime, recipeId),
+			smoking: () => cookHandlers.smoking(event, outputStack, recipe.input, recipe.xp, recipe.cookingTime, recipeId),
+			campfire: () => cookHandlers.campfire(event, outputStack, recipe.input, recipe.xp, recipe.cookingTime, recipeId),
+			stonecutting: () => addStonecuttingRecipe(event, outputStack.getId(), outputStack.getCount(), recipe.input, recipeId)
 		}
 		
-		if (!dispatch[r.type]) 
-			throw new Error("Unknown 'type' (" + r.type + ') for ' + out)
+		if (!handlers[recipe.type]) 
+			throw new Error("Unknown 'type' (" + recipe.type + ") for: " + outputId)
 			
-		dispatch[r.type]()
+		handlers[recipe.type]()
 	})
 })
